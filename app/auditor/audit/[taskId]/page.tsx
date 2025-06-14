@@ -34,7 +34,11 @@ interface QuestionResponse {
   response: any
 }
 
-export default function AuditPage({ params }: { params: { taskId: string } }) {
+export default function AuditPage({
+  params,
+}: {
+  params: { taskId: string }
+}){
   const [user, setUser] = useState<User | null>(null)
   const [task, setTask] = useState<AuditTask | null>(null)
   const [responses, setResponses] = useState<QuestionResponse[]>([])
