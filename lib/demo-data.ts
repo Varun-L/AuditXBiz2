@@ -1,3 +1,4 @@
+// Mock data for demo mode
 export interface BusinessCategory {
   id: string
   category_name: string
@@ -11,6 +12,7 @@ export interface BusinessCategory {
       max?: number
     }>
   }
+  checklist_yaml?: string // Add YAML representation for display
   created_at: string
 }
 
@@ -76,7 +78,7 @@ export interface AuditReport {
   }
 }
 
-// Mock Business Categories
+// Mock Business Categories with YAML representations
 export const mockBusinessCategories: BusinessCategory[] = [
   {
     id: "cat-restaurant",
@@ -105,6 +107,18 @@ export const mockBusinessCategories: BusinessCategory[] = [
         },
       ],
     },
+    checklist_yaml: `category_name: Restaurant
+checklist:
+  - question: "Cleanliness rating (1-10)?"
+    type: rating
+    min: 1
+    max: 10
+  - question: "Quality of ingredients used?"
+    type: text_input
+  - question: "Are health and safety certificates visible?"
+    type: checkbox
+  - question: "Upload photo of kitchen cleanliness."
+    type: photo_upload`,
     created_at: "2024-01-15T10:00:00Z",
   },
   {
@@ -134,6 +148,18 @@ export const mockBusinessCategories: BusinessCategory[] = [
         },
       ],
     },
+    checklist_yaml: `category_name: Medical Clinic
+checklist:
+  - question: "Hygiene standards rating (1-10)?"
+    type: rating
+    min: 1
+    max: 10
+  - question: "Are medical licenses displayed?"
+    type: checkbox
+  - question: "Describe the waiting area condition"
+    type: text_input
+  - question: "Upload photo of reception area"
+    type: photo_upload`,
     created_at: "2024-01-16T11:00:00Z",
   },
   {
@@ -163,6 +189,18 @@ export const mockBusinessCategories: BusinessCategory[] = [
         },
       ],
     },
+    checklist_yaml: `category_name: Retail Store
+checklist:
+  - question: "Store organization rating (1-10)?"
+    type: rating
+    min: 1
+    max: 10
+  - question: "Customer service quality?"
+    type: text_input
+  - question: "Are prices clearly displayed?"
+    type: checkbox
+  - question: "Upload photo of store front"
+    type: photo_upload`,
     created_at: "2024-01-17T12:00:00Z",
   },
   {
@@ -192,6 +230,18 @@ export const mockBusinessCategories: BusinessCategory[] = [
         },
       ],
     },
+    checklist_yaml: `category_name: Pharmacy
+checklist:
+  - question: "Medicine storage rating (1-10)?"
+    type: rating
+    min: 1
+    max: 10
+  - question: "Is pharmacist license displayed?"
+    type: checkbox
+  - question: "Describe prescription handling process"
+    type: text_input
+  - question: "Upload photo of medicine storage area"
+    type: photo_upload`,
     created_at: "2024-01-18T13:00:00Z",
   },
 ]
@@ -528,3 +578,4 @@ export const addMockBusiness = (business: Omit<Business, "id" | "created_at">): 
 
   return true
 }
+
