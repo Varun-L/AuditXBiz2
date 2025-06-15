@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Users, Building, ClipboardCheck, Truck, BarChart3 } from "lucide-react"
+import { Users, Building, ClipboardCheck, Truck, BarChart3, UserPlus, DollarSign } from "lucide-react"
 import { getCurrentUser, type User } from "@/lib/auth"
 import Navbar from "@/components/layout/navbar"
 
@@ -87,6 +87,32 @@ export default function DashboardPage() {
                 <CardDescription>View and manage all users</CardDescription>
                 <Button className="mt-4" onClick={() => router.push("/admin/users")}>
                   Manage Users
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Onboarding Approvals</CardTitle>
+                <UserPlus className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Review and approve new applications</CardDescription>
+                <Button className="mt-4" onClick={() => router.push("/admin/approvals")}>
+                  Review Applications
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Payout Management</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <CardDescription>Monitor and manage auditor payouts</CardDescription>
+                <Button className="mt-4" onClick={() => router.push("/admin/payouts")}>
+                  Manage Payouts
                 </Button>
               </CardContent>
             </Card>
@@ -179,3 +205,4 @@ export default function DashboardPage() {
     </div>
   )
 }
+
