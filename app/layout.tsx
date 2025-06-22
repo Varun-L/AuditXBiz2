@@ -14,9 +14,12 @@ export const metadata: Metadata = {
     "Revolutionary transparency platform connecting businesses with independent auditors. Combat fake reviews with verifiable audit reports.",
   keywords: "audit, business, transparency, reviews, verification, professional",
   authors: [{ name: "AuditPro Team" }],
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#2563eb",
+  // viewport: "width=device-width, initial-scale=1",
+  // themeColor: "#2563eb",
     generator: 'v0.dev'
+}
+export const viewport = {
+  themeColor: "#2563eb",
 }
 
 export default function RootLayout({
