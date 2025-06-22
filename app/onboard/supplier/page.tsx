@@ -4,71 +4,101 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle, Truck } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { useToast } from "@/hooks/use-toast"
+import { Truck, ArrowLeft, CheckCircle } from "lucide-react"
+import Link from "next/link"
 
 export default function SupplierOnboardingPage() {
   const [formData, setFormData] = useState({
-    full_name: "",
+    fullName: "",
     email: "",
-    phone_number: "",
-    physical_address: "",
-    service_areas: "",
-    vehicle_type: "",
-    license_number: "",
-    experience_years: "",
-    bank_account_number: "",
-    bank_name: "",
-    ifsc_code: "",
-    aadhaar_number: "",
-    pan_number: "",
+    phoneNumber: "",
+    address: "",
+    city: "",
+    pinCode: "",
+    vehicleType: "",
+    vehicleNumber: "",
+    drivingLicense: "",
+    experience: "",
   })
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState("")
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError("")
 
     try {
-      const { error } = await supabase.from("supplier_onboarding_requests").insert({
-        ...formData,
-        role: "supplier",
-        status: "pending",
-        submitted_at: new Date().toISOString(),
-      })
+      // Simulate API call - in real implementation, this would:
+      // 1. Create supplier application record
+      // 2. Send for admin approval
+      // 3. Send confirmation email
 
-      if (error) throw error
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       setSubmitted(true)
-    } catch (err: any) {
-      setError(err.message || "Failed to submit supplier application")
-    }
 
-    setLoading(false)
+      toast({
+        title: "Application Submitted!",
+        description: "Your delivery partner application is under review.",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="text-center py-8">
-            <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted!</h2>
-            <p className="text-gray-600 mb-4">
-              Thank you for applying to become a delivery partner with AuditX-Biz. Your application has been submitted
-              successfully.
-            </p>
-            <p className="text-sm text-gray-500">
-              Our team will review your application and contact you within 3-5 business days.
-            </p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+        <Card className="w-full max-w-2xl">
+          <CardContent className="text-center p-8">
+            <CheckCircle className="h-16 w-16 text-orange-600 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Application Submitted!</h1>
+            <p className="text-gray-600 mb-6">Thank you for applying to become a delivery partner with AuditX-Biz.</p>
+            <div className="space-y-4 text-left bg-gray-50 p-6 rounded-lg mb-6">
+              <div className="flex items-start gap-3">
+                <div className="bg-orange-100 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-orange-600">1</span>
+                </div>
+                <div>
+                  <p className="font-medium">Application Review</p>
+                  <p className="text-sm text-gray-600">Our team will review your application</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="bg-orange-100 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-orange-600">2</span>
+                </div>
+                <div>
+                  <p className="font-medium">Document Verification</p>
+                  <p className="text-sm text-gray-600">We'll verify your vehicle and license details</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="bg-orange-100 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-orange-600">3</span>
+                </div>
+                <div>
+                  <p className="font-medium">Account Activation</p>
+                  <p className="text-sm text-gray-600">Once approved, you'll receive login credentials</p>
+                </div>
+              </div>
+            </div>
+            <Link href="/">
+              <Button>Return to Home</Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -76,47 +106,56 @@ export default function SupplierOnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <Truck className="mx-auto h-12 w-12 text-blue-600 mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900">Become a Delivery Partner</h1>
-          <p className="text-gray-600 mt-2">Join our logistics network</p>
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-6">
+          <Link href="/">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
+          </Link>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Delivery Partner Application</CardTitle>
-            <CardDescription>
-              Please provide your details to join our delivery network. We'll review and get back to you soon.
-            </CardDescription>
+            <div className="flex items-center gap-2">
+              <Truck className="h-6 w-6 text-orange-600" />
+              <CardTitle className="text-2xl">Become a Delivery Partner</CardTitle>
+            </div>
+            <CardDescription>Join our network of delivery partners and help onboard new businesses</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+            <Alert className="mb-6">
+              <AlertDescription>
+                <strong>Requirements:</strong>
+                <br />• Valid driving license
+                <br />• Own vehicle (bike/car/van)
+                <br />• Smartphone for task updates
+                <br />• Ability to deliver within your city
+              </AlertDescription>
+            </Alert>
 
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="full_name">Full Name *</Label>
+                  <Label htmlFor="fullName">Full Name *</Label>
                   <Input
-                    id="full_name"
-                    value={formData.full_name}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, full_name: e.target.value }))}
+                    id="fullName"
+                    placeholder="Enter your full name"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address *</Label>
                   <Input
                     id="email"
                     type="email"
+                    placeholder="Enter your email"
                     value={formData.email}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
                   />
                 </div>
@@ -124,138 +163,85 @@ export default function SupplierOnboardingPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone_number">Phone Number *</Label>
+                  <Label htmlFor="phoneNumber">Phone Number *</Label>
                   <Input
-                    id="phone_number"
-                    value={formData.phone_number}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, phone_number: e.target.value }))}
+                    id="phoneNumber"
+                    placeholder="Enter phone number"
+                    value={formData.phoneNumber}
+                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="experience_years">Years of Experience *</Label>
+                  <Label htmlFor="city">City *</Label>
                   <Input
-                    id="experience_years"
-                    type="number"
-                    value={formData.experience_years}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, experience_years: e.target.value }))}
+                    id="city"
+                    placeholder="Enter your city"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="physical_address">Address *</Label>
+                <Label htmlFor="address">Address *</Label>
                 <Textarea
-                  id="physical_address"
-                  value={formData.physical_address}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, physical_address: e.target.value }))}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="service_areas">Service Areas *</Label>
-                <Textarea
-                  id="service_areas"
-                  value={formData.service_areas}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, service_areas: e.target.value }))}
-                  placeholder="e.g., Mumbai, Pune, Thane..."
+                  id="address"
+                  placeholder="Enter your complete address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   required
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="vehicle_type">Vehicle Type *</Label>
+                  <Label htmlFor="vehicleType">Vehicle Type *</Label>
                   <Input
-                    id="vehicle_type"
-                    value={formData.vehicle_type}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, vehicle_type: e.target.value }))}
-                    placeholder="e.g., Bike, Car, Van"
+                    id="vehicleType"
+                    placeholder="e.g., Motorcycle, Car, Van"
+                    value={formData.vehicleType}
+                    onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="license_number">Driving License Number *</Label>
+                  <Label htmlFor="vehicleNumber">Vehicle Number *</Label>
                   <Input
-                    id="license_number"
-                    value={formData.license_number}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, license_number: e.target.value }))}
+                    id="vehicleNumber"
+                    placeholder="Enter vehicle registration number"
+                    value={formData.vehicleNumber}
+                    onChange={(e) => setFormData({ ...formData, vehicleNumber: e.target.value })}
                     required
                   />
                 </div>
               </div>
 
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-medium mb-4">Financial Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="bank_name">Bank Name *</Label>
-                    <Input
-                      id="bank_name"
-                      value={formData.bank_name}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, bank_name: e.target.value }))}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="bank_account_number">Account Number *</Label>
-                    <Input
-                      id="bank_account_number"
-                      value={formData.bank_account_number}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, bank_account_number: e.target.value }))}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2 mt-4">
-                  <Label htmlFor="ifsc_code">IFSC Code *</Label>
-                  <Input
-                    id="ifsc_code"
-                    value={formData.ifsc_code}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, ifsc_code: e.target.value }))}
-                    required
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="drivingLicense">Driving License Number *</Label>
+                <Input
+                  id="drivingLicense"
+                  placeholder="Enter driving license number"
+                  value={formData.drivingLicense}
+                  onChange={(e) => setFormData({ ...formData, drivingLicense: e.target.value })}
+                  required
+                />
               </div>
 
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-medium mb-4">Identity Verification</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="aadhaar_number">Aadhaar Number *</Label>
-                    <Input
-                      id="aadhaar_number"
-                      value={formData.aadhaar_number}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, aadhaar_number: e.target.value }))}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="pan_number">PAN Number *</Label>
-                    <Input
-                      id="pan_number"
-                      value={formData.pan_number}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, pan_number: e.target.value }))}
-                      required
-                    />
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="experience">Delivery Experience</Label>
+                <Textarea
+                  id="experience"
+                  placeholder="Describe any delivery or logistics experience (optional)"
+                  value={formData.experience}
+                  onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                />
               </div>
 
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Submitting..." : "Submit Application"}
+                {loading ? "Submitting Application..." : "Submit Application"}
               </Button>
-
-              <p className="text-xs text-gray-500 text-center">
-                By submitting this form, you agree to our terms of service and privacy policy.
-              </p>
             </form>
           </CardContent>
         </Card>
