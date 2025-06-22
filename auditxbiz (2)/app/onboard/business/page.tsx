@@ -10,15 +10,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Building2, CheckCircle, Loader2 } from "lucide-react"
+import { Building2, CheckCircle } from "lucide-react"
+// Import the LocationPicker component at the top
 import { LocationPicker } from "@/components/location-picker"
-import { registerBusiness, getCategories } from "@/lib/api/businesses"
-import { useEffect } from "react"
 
 export default function BusinessOnboarding() {
   const [step, setStep] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [categories, setCategories] = useState([])
   const [formData, setFormData] = useState({
     businessName: "",
     ownerName: "",
@@ -32,18 +29,13 @@ export default function BusinessOnboarding() {
     agreeToTerms: false,
   })
 
-  // Load categories from database
-  useEffect(() => {
-    async function loadCategories() {
-      try {
-        const data = await getCategories()
-        setCategories(data)
-      } catch (error) {
-        console.error("Failed to load categories:", error)
-      }
-    }
-    loadCategories()
-  }, [])
+  const categories = [
+    { value: "restaurant", label: "Restaurant" },
+    { value: "retail", label: "Retail Store" },
+    { value: "service", label: "Service Center" },
+    { value: "healthcare", label: "Healthcare" },
+    { value: "education", label: "Education" },
+  ]
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -77,19 +69,13 @@ export default function BusinessOnboarding() {
       return
     }
 
-    setLoading(true)
+    // Here you would submit to Supabase
+    console.log("Submitting business registration:", formData)
 
-    try {
-      // Register business in database
-      const business = await registerBusiness(formData)
-      console.log("Business registered successfully:", business)
+    // Simulate API call
+    setTimeout(() => {
       setStep(3) // Success step
-    } catch (error) {
-      console.error("Registration failed:", error)
-      alert("Registration failed. Please try again.")
-    } finally {
-      setLoading(false)
-    }
+    }, 1000)
   }
 
   if (step === 3) {
@@ -102,17 +88,17 @@ export default function BusinessOnboarding() {
             </div>
             <CardTitle className="text-2xl text-green-800">Registration Successful!</CardTitle>
             <CardDescription>
-              Your business has been registered successfully. Our system has automatically assigned the nearest auditor
-              and supplier to your location.
+              Your business has been registered successfully. Our team will review your application and assign an
+              auditor within 24 hours.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="bg-blue-50 p-4 rounded-lg">
               <h4 className="font-semibold text-blue-800 mb-2">What happens next?</h4>
               <ul className="text-sm text-blue-700 space-y-1">
-                <li>• Nearest auditor has been automatically assigned</li>
+                <li>• An auditor will be assigned based on your location</li>
                 <li>• You'll receive a confirmation call within 24 hours</li>
-                <li>• Onboarding kit will be dispatched by nearest supplier</li>
+                <li>• Onboarding kit will be dispatched to your address</li>
                 <li>• Audit will be scheduled at your convenience</li>
               </ul>
             </div>
@@ -189,9 +175,9 @@ export default function BusinessOnboarding() {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories.map((cat: any) => (
-                            <SelectItem key={cat.id} value={cat.name.toLowerCase()}>
-                              {cat.name}
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.value} value={cat.value}>
+                              {cat.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -303,16 +289,9 @@ export default function BusinessOnboarding() {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={!formData.agreeToTerms || !formData.latitude || !formData.longitude || loading}
+                      disabled={!formData.agreeToTerms || !formData.latitude || !formData.longitude}
                     >
-                      {loading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Registering...
-                        </>
-                      ) : (
-                        "Register Business"
-                      )}
+                      Register Business
                     </Button>
                   </div>
                 </>
@@ -324,4 +303,3 @@ export default function BusinessOnboarding() {
     </div>
   )
 }
-

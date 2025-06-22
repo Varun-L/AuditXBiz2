@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -17,65 +17,147 @@ import {
   Edit,
   Shield,
   MapPin,
+  Star,
   TrendingUp,
   Settings,
   Search,
   Filter,
-  Loader2,
 } from "lucide-react"
-import { getBusinesses, updateBusinessCertification } from "@/lib/api/businesses"
-import { getAuditors, getSuppliers, updateUserStatus } from "@/lib/api/users"
-import { getFraudAlerts, updateFraudAlertStatus } from "@/lib/api/fraud"
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
-  const [loading, setLoading] = useState(false)
-  const [businesses, setBusinesses] = useState([])
-  const [auditors, setAuditors] = useState([])
-  const [suppliers, setSuppliers] = useState([])
-  const [fraudAlerts, setFraudAlerts] = useState([])
+  const [selectedVipana, setSelectedVipana] = useState(null)
 
-  // Load data from database
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true)
-      try {
-        const [businessData, auditorData, supplierData, fraudData] = await Promise.all([
-          getBusinesses(),
-          getAuditors(),
-          getSuppliers(),
-          getFraudAlerts(),
-        ])
-
-        setBusinesses(businessData)
-        setAuditors(auditorData)
-        setSuppliers(supplierData)
-        setFraudAlerts(fraudData)
-      } catch (error) {
-        console.error("Failed to load dashboard data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadData()
-  }, [])
-
-  // Calculate stats from real data
+  // Mock data - enhanced with new features
   const stats = {
-    totalVipanas: businesses.length,
-    pendingCertifications: businesses.filter((b: any) => b.certification_status === "pending").length,
-    activeSamikshaks: auditors.filter((a: any) => a.is_active && !a.is_frozen).length,
-    totalAriyas: 1250, // This would come from consumers table
-    fraudAlerts: fraudAlerts.filter((f: any) => f.status === "pending").length,
-    pendingDeliveries: 12, // This would come from delivery_tasks
+    totalVipanas: 156,
+    pendingCertifications: 23,
+    activeSamikshaks: 45,
+    totalAriyas: 1250,
+    fraudAlerts: 8,
+    pendingDeliveries: 12,
     monthlyRevenue: 125000,
-    certificationRate: businesses.length
-      ? (businesses.filter((b: any) => b.certification_status === "certified").length / businesses.length) * 100
-      : 0,
+    certificationRate: 87.5,
   }
 
-  const getStatusColor = (status: string) => {
+  const vipanas = [
+    {
+      id: "1",
+      name: "Cafe Mumbai",
+      owner: "Rajesh Patel",
+      category: "Restaurant",
+      status: "certified",
+      score: 85.5,
+      location: "Andheri West, Mumbai",
+      canListProducts: true,
+      productsCount: 12,
+      reviewsCount: 45,
+      avgRating: 4.2,
+      certifiedAt: "2024-01-15",
+      lastAudit: "2024-01-15",
+    },
+    {
+      id: "2",
+      name: "Tech Store Pro",
+      owner: "Priya Sharma",
+      category: "Retail Store",
+      status: "pending",
+      score: null,
+      location: "Lower Parel, Mumbai",
+      canListProducts: false,
+      productsCount: 0,
+      reviewsCount: 0,
+      avgRating: 0,
+      appliedAt: "2024-01-16",
+    },
+    {
+      id: "3",
+      name: "Service Center",
+      owner: "Amit Kumar",
+      category: "Service Center",
+      status: "rejected",
+      score: 45.2,
+      location: "Dadar, Mumbai",
+      canListProducts: false,
+      productsCount: 0,
+      reviewsCount: 8,
+      avgRating: 2.1,
+      rejectionReason: "Failed compliance requirements",
+      rejectedAt: "2024-01-14",
+    },
+  ]
+
+  const samikshaks = [
+    {
+      id: "1",
+      name: "Rajesh Kumar",
+      region: "Mumbai West",
+      pinCodes: ["400053", "400058", "400061"],
+      completionRate: 94.5,
+      rejectionRate: 5.2,
+      totalAudits: 67,
+      avgRating: 4.7,
+      status: "active",
+      lastActive: "2024-01-16",
+    },
+    {
+      id: "2",
+      name: "Priya Sharma",
+      region: "Mumbai Central",
+      pinCodes: ["400012", "400013", "400014"],
+      completionRate: 88.3,
+      rejectionRate: 8.1,
+      totalAudits: 52,
+      avgRating: 4.4,
+      status: "active",
+      lastActive: "2024-01-16",
+    },
+    {
+      id: "3",
+      name: "Amit Patel",
+      region: "Mumbai South",
+      pinCodes: ["400001", "400002", "400005"],
+      completionRate: 76.2,
+      rejectionRate: 15.8,
+      totalAudits: 34,
+      avgRating: 3.9,
+      status: "frozen",
+      freezeReason: "Multiple audit rejections",
+      frozenAt: "2024-01-10",
+    },
+  ]
+
+  const fraudAlerts = [
+    {
+      id: "1",
+      type: "duplicate_review",
+      description: "Multiple negative reviews from same IP address for Cafe Mumbai",
+      severity: "high",
+      status: "investigating",
+      entityType: "review",
+      createdAt: "2024-01-16T10:30:00Z",
+    },
+    {
+      id: "2",
+      type: "fast_audit",
+      description: "Audit completed in 8 minutes (minimum 15 minutes required)",
+      severity: "medium",
+      status: "pending",
+      entityType: "audit",
+      createdAt: "2024-01-16T09:15:00Z",
+    },
+    {
+      id: "3",
+      type: "gps_mismatch",
+      description: "GPS location 500m away from business address during audit",
+      severity: "high",
+      status: "resolved",
+      entityType: "audit",
+      createdAt: "2024-01-15T14:20:00Z",
+    },
+  ]
+
+  const getStatusColor = (status) => {
     switch (status) {
       case "certified":
         return "bg-green-100 text-green-800"
@@ -92,7 +174,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity) => {
     switch (severity) {
       case "high":
         return "bg-red-100 text-red-800"
@@ -105,83 +187,19 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleCertificationAction = async (businessId: string, action: string, reason = "") => {
-    try {
-      if (action === "approve") {
-        await updateBusinessCertification(businessId, "certified", 85) // Default score
-      } else if (action === "reject") {
-        await updateBusinessCertification(businessId, "rejected", undefined, reason)
-      }
-
-      // Reload businesses data
-      const updatedBusinesses = await getBusinesses()
-      setBusinesses(updatedBusinesses)
-
-      alert(`Business ${action}d successfully!`)
-    } catch (error) {
-      console.error(`Failed to ${action} business:`, error)
-      alert(`Failed to ${action} business. Please try again.`)
-    }
+  const handleCertificationAction = (vipanaId, action, reason = "") => {
+    console.log(`${action} certification for Vipana ${vipanaId}`, reason)
+    alert(`Vipana ${action} successfully!`)
   }
 
-  const handleScoreOverride = async (businessId: string, newScore: string, reason: string) => {
-    try {
-      await updateBusinessCertification(businessId, "certified", Number.parseFloat(newScore))
-
-      // Reload businesses data
-      const updatedBusinesses = await getBusinesses()
-      setBusinesses(updatedBusinesses)
-
-      alert("Score override completed successfully!")
-    } catch (error) {
-      console.error("Failed to override score:", error)
-      alert("Failed to override score. Please try again.")
-    }
+  const handleScoreOverride = (vipanaId, newScore, reason) => {
+    console.log(`Overriding score for Vipana ${vipanaId} to ${newScore}. Reason: ${reason}`)
+    alert("Score override logged successfully!")
   }
 
-  const handleAuditorAction = async (auditorId: string, action: string, reason = "") => {
-    try {
-      if (action === "freeze") {
-        await updateUserStatus(auditorId, true, true, reason)
-      } else if (action === "unfreeze") {
-        await updateUserStatus(auditorId, true, false)
-      }
-
-      // Reload auditors data
-      const updatedAuditors = await getAuditors()
-      setAuditors(updatedAuditors)
-
-      alert(`Auditor ${action}d successfully!`)
-    } catch (error) {
-      console.error(`Failed to ${action} auditor:`, error)
-      alert(`Failed to ${action} auditor. Please try again.`)
-    }
-  }
-
-  const handleFraudAlertAction = async (alertId: string, action: string) => {
-    try {
-      await updateFraudAlertStatus(alertId, action as any)
-
-      // Reload fraud alerts
-      const updatedAlerts = await getFraudAlerts()
-      setFraudAlerts(updatedAlerts)
-
-      alert(`Fraud alert ${action} successfully!`)
-    } catch (error) {
-      console.error(`Failed to ${action} fraud alert:`, error)
-      alert(`Failed to ${action} fraud alert. Please try again.`)
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading dashboard data...</p>
-        </div>
-      </div>
-    )
+  const handleSamikshakAction = (samikshakId, action, reason = "") => {
+    console.log(`${action} Samikshak ${samikshakId}`, reason)
+    alert(`Samikshak ${action} successfully!`)
   }
 
   return (
@@ -267,7 +285,7 @@ export default function AdminDashboard() {
                   <TrendingUp className="h-4 w-4 text-green-500" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{stats.certificationRate.toFixed(1)}%</div>
+                  <div className="text-2xl font-bold text-green-600">{stats.certificationRate}%</div>
                   <p className="text-xs text-muted-foreground">This month</p>
                 </CardContent>
               </Card>
@@ -322,24 +340,22 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid gap-6">
-              {businesses.map((business: any) => (
-                <Card key={business.id}>
+              {vipanas.map((vipana) => (
+                <Card key={vipana.id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="flex items-center gap-2">
-                          {business.name}
-                          <Badge className={getStatusColor(business.certification_status)}>
-                            {business.certification_status}
-                          </Badge>
-                          {business.can_list_products && (
+                          {vipana.name}
+                          <Badge className={getStatusColor(vipana.status)}>{vipana.status}</Badge>
+                          {vipana.canListProducts && (
                             <Badge variant="outline" className="bg-blue-50 text-blue-700">
                               Product Listing Enabled
                             </Badge>
                           )}
                         </CardTitle>
                         <CardDescription>
-                          Owner: {business.owner_name} • {business.categories?.name} • {business.address}
+                          Owner: {vipana.owner} • {vipana.category} • {vipana.location}
                         </CardDescription>
                       </div>
                       <div className="flex space-x-2">
@@ -356,27 +372,37 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                       <div>
                         <p className="text-sm text-gray-500">Certification Score</p>
-                        <p className="text-lg font-semibold">
-                          {business.certification_score ? `${business.certification_score}/100` : "Pending"}
-                        </p>
+                        <p className="text-lg font-semibold">{vipana.score ? `${vipana.score}/100` : "Pending"}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Products Listed</p>
-                        <p className="text-lg font-semibold">0</p>
+                        <p className="text-lg font-semibold">{vipana.productsCount}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Reviews</p>
-                        <p className="text-lg font-semibold">0</p>
+                        <p className="text-lg font-semibold flex items-center">
+                          {vipana.reviewsCount}
+                          {vipana.avgRating > 0 && (
+                            <span className="ml-2 flex items-center text-sm">
+                              <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                              {vipana.avgRating}
+                            </span>
+                          )}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Created</p>
-                        <p className="text-sm">{new Date(business.created_at).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-500">Last Activity</p>
+                        <p className="text-sm">
+                          {vipana.certifiedAt && new Date(vipana.certifiedAt).toLocaleDateString()}
+                          {vipana.appliedAt && `Applied: ${new Date(vipana.appliedAt).toLocaleDateString()}`}
+                          {vipana.rejectedAt && `Rejected: ${new Date(vipana.rejectedAt).toLocaleDateString()}`}
+                        </p>
                       </div>
                     </div>
 
-                    {business.certification_status === "pending" && (
+                    {vipana.status === "pending" && (
                       <div className="flex space-x-2 mb-4">
-                        <Button size="sm" onClick={() => handleCertificationAction(business.id, "approve")}>
+                        <Button size="sm" onClick={() => handleCertificationAction(vipana.id, "approve")}>
                           Approve Certification
                         </Button>
                         <Button
@@ -384,7 +410,7 @@ export default function AdminDashboard() {
                           variant="outline"
                           onClick={() => {
                             const reason = prompt("Reason for rejection:")
-                            if (reason) handleCertificationAction(business.id, "reject", reason)
+                            if (reason) handleCertificationAction(vipana.id, "reject", reason)
                           }}
                         >
                           Reject
@@ -395,7 +421,7 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
-                    {business.certification_status === "certified" && (
+                    {vipana.status === "certified" && (
                       <div className="flex space-x-2 mb-4">
                         <Button
                           size="sm"
@@ -403,7 +429,7 @@ export default function AdminDashboard() {
                           onClick={() => {
                             const newScore = prompt("New score (0-100):")
                             const reason = prompt("Reason for override:")
-                            if (newScore && reason) handleScoreOverride(business.id, newScore, reason)
+                            if (newScore && reason) handleScoreOverride(vipana.id, newScore, reason)
                           }}
                         >
                           Override Score
@@ -417,10 +443,10 @@ export default function AdminDashboard() {
                       </div>
                     )}
 
-                    {business.certification_status === "rejected" && business.rejection_reason && (
+                    {vipana.status === "rejected" && vipana.rejectionReason && (
                       <div className="bg-red-50 p-3 rounded-lg">
                         <p className="text-sm text-red-800">
-                          <strong>Rejection Reason:</strong> {business.rejection_reason}
+                          <strong>Rejection Reason:</strong> {vipana.rejectionReason}
                         </p>
                       </div>
                     )}
@@ -456,18 +482,18 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid gap-6">
-              {auditors.map((auditor: any) => (
-                <Card key={auditor.id}>
+              {samikshaks.map((samikshak) => (
+                <Card key={samikshak.id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="flex items-center gap-2">
-                          {auditor.full_name}
-                          <Badge className={getStatusColor(auditor.is_frozen ? "frozen" : "active")}>
-                            {auditor.is_frozen ? "frozen" : "active"}
-                          </Badge>
+                          {samikshak.name}
+                          <Badge className={getStatusColor(samikshak.status)}>{samikshak.status}</Badge>
                         </CardTitle>
-                        <CardDescription>{auditor.address}</CardDescription>
+                        <CardDescription>
+                          {samikshak.region} • Pin Codes: {samikshak.pinCodes.join(", ")}
+                        </CardDescription>
                       </div>
                       <div className="flex space-x-2">
                         <Button variant="ghost" size="sm">
@@ -483,19 +509,22 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                       <div>
                         <p className="text-sm text-gray-500">Completion Rate</p>
-                        <p className="text-lg font-semibold text-green-600">{auditor.completion_rate || 0}%</p>
+                        <p className="text-lg font-semibold text-green-600">{samikshak.completionRate}%</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Rejection Rate</p>
-                        <p className="text-lg font-semibold text-red-600">{auditor.rejection_rate || 0}%</p>
+                        <p className="text-lg font-semibold text-red-600">{samikshak.rejectionRate}%</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Status</p>
-                        <p className="text-lg font-semibold">{auditor.is_active ? "Active" : "Inactive"}</p>
+                        <p className="text-sm text-gray-500">Total Audits</p>
+                        <p className="text-lg font-semibold">{samikshak.totalAudits}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Joined</p>
-                        <p className="text-sm">{new Date(auditor.created_at).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-500">Average Rating</p>
+                        <p className="text-lg font-semibold flex items-center">
+                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                          {samikshak.avgRating}
+                        </p>
                       </div>
                     </div>
 
@@ -506,28 +535,30 @@ export default function AdminDashboard() {
                       <Button size="sm" variant="outline">
                         View Performance
                       </Button>
-                      {!auditor.is_frozen ? (
+                      {samikshak.status === "active" ? (
                         <Button
                           size="sm"
                           variant="destructive"
                           onClick={() => {
                             const reason = prompt("Reason for freezing account:")
-                            if (reason) handleAuditorAction(auditor.id, "freeze", reason)
+                            if (reason) handleSamikshakAction(samikshak.id, "freeze", reason)
                           }}
                         >
                           Freeze Account
                         </Button>
                       ) : (
-                        <Button size="sm" onClick={() => handleAuditorAction(auditor.id, "unfreeze")}>
+                        <Button size="sm" onClick={() => handleSamikshakAction(samikshak.id, "unfreeze")}>
                           Unfreeze Account
                         </Button>
                       )}
                     </div>
 
-                    {auditor.is_frozen && auditor.freeze_reason && (
+                    {samikshak.status === "frozen" && samikshak.freezeReason && (
                       <div className="bg-red-50 p-3 rounded-lg">
                         <p className="text-sm text-red-800">
-                          <strong>Frozen:</strong> {auditor.freeze_reason}
+                          <strong>Frozen:</strong> {samikshak.freezeReason}
+                          <br />
+                          <strong>Date:</strong> {new Date(samikshak.frozenAt).toLocaleDateString()}
                         </p>
                       </div>
                     )}
@@ -563,19 +594,19 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid gap-4">
-              {fraudAlerts.map((alert: any) => (
+              {fraudAlerts.map((alert) => (
                 <Card key={alert.id}>
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="flex items-center gap-2">
                           <AlertTriangle className="h-5 w-5 text-red-500" />
-                          {alert.alert_type.replace("_", " ").toUpperCase()}
+                          {alert.type.replace("_", " ").toUpperCase()}
                           <Badge className={getSeverityColor(alert.severity)}>{alert.severity}</Badge>
                           <Badge variant="outline">{alert.status}</Badge>
                         </CardTitle>
                         <CardDescription>
-                          {alert.entity_type} • {new Date(alert.created_at).toLocaleString()}
+                          {alert.entityType} • {new Date(alert.createdAt).toLocaleString()}
                         </CardDescription>
                       </div>
                     </div>
@@ -583,13 +614,11 @@ export default function AdminDashboard() {
                   <CardContent>
                     <p className="text-sm mb-4">{alert.description}</p>
                     <div className="flex space-x-2">
-                      <Button size="sm" onClick={() => handleFraudAlertAction(alert.id, "investigating")}>
-                        Investigate
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleFraudAlertAction(alert.id, "resolved")}>
+                      <Button size="sm">Investigate</Button>
+                      <Button size="sm" variant="outline">
                         Mark as Resolved
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleFraudAlertAction(alert.id, "dismissed")}>
+                      <Button size="sm" variant="outline">
                         Dismiss
                       </Button>
                     </div>
@@ -599,7 +628,7 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
-          {/* Other tabs */}
+          {/* Other tabs would be implemented similarly */}
           <TabsContent value="ariyas">
             <Card>
               <CardHeader>
@@ -619,31 +648,7 @@ export default function AdminDashboard() {
                 <CardDescription>Manage delivery partners and kit distribution</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-6">
-                  {suppliers.map((supplier: any) => (
-                    <Card key={supplier.id}>
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="font-semibold">{supplier.full_name}</h3>
-                            <p className="text-sm text-gray-500">{supplier.address}</p>
-                          </div>
-                          <Badge className={getStatusColor(supplier.is_active ? "active" : "inactive")}>
-                            {supplier.is_active ? "active" : "inactive"}
-                          </Badge>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            View Details
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            Manage Deliveries
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <p className="text-center text-gray-500 py-8">Supplier management interface coming soon...</p>
               </CardContent>
             </Card>
           </TabsContent>
@@ -676,5 +681,3 @@ export default function AdminDashboard() {
     </div>
   )
 }
-
-

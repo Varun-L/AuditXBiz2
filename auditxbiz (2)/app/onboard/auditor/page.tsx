@@ -9,13 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Users, CheckCircle, Upload, Loader2 } from "lucide-react"
-import { LocationPicker } from "@/components/location-picker"
-import { registerAuditor } from "@/lib/api/users"
+import { MapPin, Users, CheckCircle, Upload } from "lucide-react"
 
 export default function AuditorOnboarding() {
   const [step, setStep] = useState(1)
-  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -35,6 +32,26 @@ export default function AuditorOnboarding() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setFormData((prev) => ({
+            ...prev,
+            latitude: position.coords.latitude.toString(),
+            longitude: position.coords.longitude.toString(),
+          }))
+        },
+        (error) => {
+          console.error("Error getting location:", error)
+          alert("Unable to get your location. Please enter coordinates manually.")
+        },
+      )
+    } else {
+      alert("Geolocation is not supported by this browser.")
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -43,19 +60,13 @@ export default function AuditorOnboarding() {
       return
     }
 
-    setLoading(true)
+    // Here you would submit to Supabase
+    console.log("Submitting auditor registration:", formData)
 
-    try {
-      // Register auditor in database
-      const auditor = await registerAuditor(formData)
-      console.log("Auditor registered successfully:", auditor)
+    // Simulate API call
+    setTimeout(() => {
       setStep(3) // Success step
-    } catch (error) {
-      console.error("Registration failed:", error)
-      alert("Registration failed. Please try again.")
-    } finally {
-      setLoading(false)
-    }
+    }, 1000)
   }
 
   if (step === 3) {
@@ -184,19 +195,37 @@ export default function AuditorOnboarding() {
                     />
                   </div>
 
-                  <LocationPicker
-                    onLocationSelect={(lat, lng, address) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        latitude: lat.toString(),
-                        longitude: lng.toString(),
-                        address: address || prev.address,
-                      }))
-                    }}
-                    initialLat={formData.latitude ? Number.parseFloat(formData.latitude) : undefined}
-                    initialLng={formData.longitude ? Number.parseFloat(formData.longitude) : undefined}
-                    initialAddress={formData.address}
-                  />
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label>Location Coordinates</Label>
+                      <Button type="button" variant="outline" onClick={getCurrentLocation}>
+                        <MapPin className="h-4 w-4 mr-2" />
+                        Get Current Location
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="latitude">Latitude *</Label>
+                        <Input
+                          id="latitude"
+                          placeholder="19.0760"
+                          value={formData.latitude}
+                          onChange={(e) => handleInputChange("latitude", e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="longitude">Longitude *</Label>
+                        <Input
+                          id="longitude"
+                          placeholder="72.8777"
+                          value={formData.longitude}
+                          onChange={(e) => handleInputChange("longitude", e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="experience">Relevant Experience</Label>
@@ -323,16 +352,9 @@ export default function AuditorOnboarding() {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={!formData.agreeToTerms || !formData.aadhaarNumber || !formData.upiId || loading}
+                      disabled={!formData.agreeToTerms || !formData.aadhaarNumber || !formData.upiId}
                     >
-                      {loading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Submitting...
-                        </>
-                      ) : (
-                        "Submit Application"
-                      )}
+                      Submit Application
                     </Button>
                   </div>
                 </>
