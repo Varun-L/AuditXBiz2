@@ -1,95 +1,92 @@
 -- Insert sample business categories
-INSERT INTO business_categories (category_name, payout_amount, checklist) VALUES
+INSERT INTO business_categories (name, payout_amount, checklist) VALUES
 ('Restaurant', 20000, '{
-  "category_name": "Restaurant",
-  "checklist": [
+  "questions": [
     {
+      "id": "cleanliness_rating",
       "question": "Cleanliness rating (1-10)?",
       "type": "rating",
       "min": 1,
-      "max": 10
+      "max": 10,
+      "required": true
     },
     {
+      "id": "ingredient_quality",
       "question": "Quality of ingredients used?",
-      "type": "text_input"
+      "type": "text_input",
+      "required": true
     },
     {
+      "id": "health_certificates",
       "question": "Are health and safety certificates visible?",
-      "type": "checkbox"
+      "type": "checkbox",
+      "required": true
     },
     {
+      "id": "kitchen_photo",
       "question": "Upload photo of kitchen cleanliness.",
-      "type": "photo_upload"
+      "type": "photo_upload",
+      "required": true
     }
   ]
 }'),
-('Medical Clinic', 30000, '{
-  "category_name": "Medical Clinic",
-  "checklist": [
+('Medical Clinic', 25000, '{
+  "questions": [
     {
-      "question": "Hygiene standards rating (1-10)?",
+      "id": "facility_cleanliness",
+      "question": "Overall facility cleanliness (1-10)?",
       "type": "rating",
       "min": 1,
-      "max": 10
+      "max": 10,
+      "required": true
     },
     {
-      "question": "Are medical licenses displayed?",
-      "type": "checkbox"
+      "id": "equipment_condition",
+      "question": "Condition of medical equipment?",
+      "type": "text_input",
+      "required": true
     },
     {
-      "question": "Describe the waiting area condition",
-      "type": "text_input"
+      "id": "staff_hygiene",
+      "question": "Staff following proper hygiene protocols?",
+      "type": "checkbox",
+      "required": true
     },
     {
-      "question": "Upload photo of reception area",
-      "type": "photo_upload"
+      "id": "facility_photo",
+      "question": "Upload photo of main facility area.",
+      "type": "photo_upload",
+      "required": true
     }
   ]
 }'),
 ('Retail Store', 15000, '{
-  "category_name": "Retail Store",
-  "checklist": [
+  "questions": [
     {
-      "question": "Store organization rating (1-10)?",
+      "id": "store_organization",
+      "question": "Store organization and cleanliness (1-10)?",
       "type": "rating",
       "min": 1,
-      "max": 10
+      "max": 10,
+      "required": true
     },
     {
-      "question": "Customer service quality?",
-      "type": "text_input"
+      "id": "product_quality",
+      "question": "Overall product quality assessment?",
+      "type": "text_input",
+      "required": true
     },
     {
-      "question": "Are prices clearly displayed?",
-      "type": "checkbox"
+      "id": "customer_service",
+      "question": "Staff provides good customer service?",
+      "type": "checkbox",
+      "required": true
     },
     {
-      "question": "Upload photo of store front",
-      "type": "photo_upload"
+      "id": "store_photo",
+      "question": "Upload photo of store interior.",
+      "type": "photo_upload",
+      "required": true
     }
   ]
 }');
-
--- Insert sample admin user (password will be handled by Supabase Auth)
-INSERT INTO users (email, full_name, role) VALUES
-('admin@auditx.com', 'System Administrator', 'admin');
-
--- Insert sample suppliers
-INSERT INTO users (email, full_name, phone_number, physical_address, role) VALUES
-('supplier1@auditx.com', 'John Supplier', '+91-9876543210', '123 Supplier Street, Mumbai', 'supplier'),
-('supplier2@auditx.com', 'Jane Logistics', '+91-9876543211', '456 Delivery Lane, Delhi', 'supplier');
-
--- Insert sample auditors
-INSERT INTO users (email, full_name, phone_number, physical_address, role) VALUES
-('auditor1@auditx.com', 'Mike Auditor', '+91-9876543212', '789 Audit Avenue, Bangalore', 'auditor'),
-('auditor2@auditx.com', 'Sarah Inspector', '+91-9876543213', '321 Review Road, Chennai', 'auditor');
-
--- Insert auditor financial details
-INSERT INTO auditor_financial_details (user_id, upi_handle, bank_account_number)
-SELECT id, 'auditor@upi', '1234567890123456'
-FROM users WHERE role = 'auditor';
-
--- Insert sample consumers
-INSERT INTO users (email, full_name, phone_number, physical_address, role) VALUES
-('consumer1@auditx.com', 'Alice Consumer', '+91-9876543214', '654 Consumer Colony, Mumbai', 'consumer'),
-('consumer2@auditx.com', 'Bob User', '+91-9876543215', '987 User Nagar, Delhi', 'consumer');

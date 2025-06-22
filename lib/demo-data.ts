@@ -1,581 +1,408 @@
-// Mock data for demo mode
-export interface BusinessCategory {
-  id: string
-  category_name: string
-  payout_amount: number
-  checklist: {
-    category_name: string
-    checklist: Array<{
-      question: string
-      type: string
-      min?: number
-      max?: number
-    }>
-  }
-  checklist_yaml?: string // Add YAML representation for display
-  created_at: string
-}
-
-export interface Business {
-  id: string
-  business_name: string
-  address: string
-  city: string
-  pin_code: string
-  category_id: string
-  created_at: string
-  business_categories?: {
-    category_name: string
-    checklist?: any
-  }
-}
-
-export interface SupplierTask {
-  id: string
-  supplier_id: string
-  business_id: string
-  status: "to_do" | "in_progress" | "package_sent" | "package_delivered"
-  created_at: string
-  updated_at: string
-  businesses?: Business
-}
-
-export interface AuditorTask {
-  id: string
-  auditor_id: string
-  business_id: string
-  status: "not_started" | "on_field" | "in_progress" | "completed"
-  payout_amount: number
-  created_at: string
-  updated_at: string
-  businesses?: Business & {
-    business_categories: {
-      category_name: string
-      checklist: any
-    }
-  }
-}
-
-export interface AuditReport {
-  id: string
-  auditor_task_id: string
-  auditor_id: string
-  business_id: string
-  responses: Array<{
-    question: string
-    type: string
-    response: any
-  }>
-  photos: string[]
-  submitted_at: string
-  users?: {
-    full_name: string
-  }
-  businesses?: Business & {
-    business_categories: {
-      category_name: string
-    }
-  }
-}
-
-// Mock Business Categories with YAML representations
-export const mockBusinessCategories: BusinessCategory[] = [
+// Demo data for the application
+export const demoUsers = [
   {
-    id: "cat-restaurant",
-    category_name: "Restaurant",
-    payout_amount: 20000, // ₹200 in paise
+    id: "admin-1",
+    role: "admin" as const,
+    full_name: "Admin User",
+    email: "admin@auditpro.com",
+    phone_number: "+91 9876543210",
+    address: "123 Admin Street",
+    city: "Mumbai",
+    pin_code: "400001",
+  },
+  {
+    id: "auditor-1",
+    role: "auditor" as const,
+    full_name: "John Auditor",
+    email: "john@auditpro.com",
+    phone_number: "+91 9876543211",
+    address: "456 Auditor Lane",
+    city: "Mumbai",
+    pin_code: "400002",
+    upi_handle: "john@paytm",
+    bank_account_number: "1234567890",
+  },
+  {
+    id: "supplier-1",
+    role: "supplier" as const,
+    full_name: "Supply Chain Co",
+    email: "supplier@auditpro.com",
+    phone_number: "+91 9876543212",
+    address: "789 Supply Road",
+    city: "Mumbai",
+    pin_code: "400003",
+  },
+  {
+    id: "consumer-1",
+    role: "consumer" as const,
+    full_name: "Jane Consumer",
+    email: "jane@auditpro.com",
+    phone_number: "+91 9876543213",
+    address: "321 Consumer Street",
+    city: "Mumbai",
+    pin_code: "400004",
+  },
+]
+
+export const demoCategories = [
+  {
+    id: "cat-1",
+    name: "Restaurant",
+    payout_amount: 20000,
     checklist: {
-      category_name: "Restaurant",
-      checklist: [
+      questions: [
         {
+          id: "cleanliness_rating",
           question: "Cleanliness rating (1-10)?",
           type: "rating",
           min: 1,
           max: 10,
+          required: true,
         },
         {
+          id: "ingredient_quality",
           question: "Quality of ingredients used?",
           type: "text_input",
+          required: true,
         },
         {
+          id: "health_certificates",
           question: "Are health and safety certificates visible?",
           type: "checkbox",
+          required: true,
         },
         {
+          id: "kitchen_photo",
           question: "Upload photo of kitchen cleanliness.",
           type: "photo_upload",
+          required: true,
         },
       ],
     },
-    checklist_yaml: `category_name: Restaurant
-checklist:
-  - question: "Cleanliness rating (1-10)?"
-    type: rating
-    min: 1
-    max: 10
-  - question: "Quality of ingredients used?"
-    type: text_input
-  - question: "Are health and safety certificates visible?"
-    type: checkbox
-  - question: "Upload photo of kitchen cleanliness."
-    type: photo_upload`,
-    created_at: "2024-01-15T10:00:00Z",
+    created_at: "2024-01-01T00:00:00Z",
   },
   {
-    id: "cat-medical",
-    category_name: "Medical Clinic",
-    payout_amount: 30000, // ₹300 in paise
+    id: "cat-2",
+    name: "Medical Clinic",
+    payout_amount: 25000,
     checklist: {
-      category_name: "Medical Clinic",
-      checklist: [
+      questions: [
         {
-          question: "Hygiene standards rating (1-10)?",
+          id: "facility_cleanliness",
+          question: "Overall facility cleanliness (1-10)?",
           type: "rating",
           min: 1,
           max: 10,
+          required: true,
         },
         {
-          question: "Are medical licenses displayed?",
-          type: "checkbox",
-        },
-        {
-          question: "Describe the waiting area condition",
+          id: "equipment_condition",
+          question: "Condition of medical equipment?",
           type: "text_input",
+          required: true,
         },
         {
-          question: "Upload photo of reception area",
+          id: "staff_hygiene",
+          question: "Staff following proper hygiene protocols?",
+          type: "checkbox",
+          required: true,
+        },
+        {
+          id: "facility_photo",
+          question: "Upload photo of main facility area.",
           type: "photo_upload",
+          required: true,
         },
       ],
     },
-    checklist_yaml: `category_name: Medical Clinic
-checklist:
-  - question: "Hygiene standards rating (1-10)?"
-    type: rating
-    min: 1
-    max: 10
-  - question: "Are medical licenses displayed?"
-    type: checkbox
-  - question: "Describe the waiting area condition"
-    type: text_input
-  - question: "Upload photo of reception area"
-    type: photo_upload`,
-    created_at: "2024-01-16T11:00:00Z",
+    created_at: "2024-01-02T00:00:00Z",
   },
   {
-    id: "cat-retail",
-    category_name: "Retail Store",
-    payout_amount: 15000, // ₹150 in paise
-    checklist: {
-      category_name: "Retail Store",
-      checklist: [
-        {
-          question: "Store organization rating (1-10)?",
-          type: "rating",
-          min: 1,
-          max: 10,
-        },
-        {
-          question: "Customer service quality?",
-          type: "text_input",
-        },
-        {
-          question: "Are prices clearly displayed?",
-          type: "checkbox",
-        },
-        {
-          question: "Upload photo of store front",
-          type: "photo_upload",
-        },
-      ],
-    },
-    checklist_yaml: `category_name: Retail Store
-checklist:
-  - question: "Store organization rating (1-10)?"
-    type: rating
-    min: 1
-    max: 10
-  - question: "Customer service quality?"
-    type: text_input
-  - question: "Are prices clearly displayed?"
-    type: checkbox
-  - question: "Upload photo of store front"
-    type: photo_upload`,
-    created_at: "2024-01-17T12:00:00Z",
-  },
-  {
-    id: "cat-pharmacy",
-    category_name: "Pharmacy",
-    payout_amount: 25000, // ₹250 in paise
-    checklist: {
-      category_name: "Pharmacy",
-      checklist: [
-        {
-          question: "Medicine storage rating (1-10)?",
-          type: "rating",
-          min: 1,
-          max: 10,
-        },
-        {
-          question: "Is pharmacist license displayed?",
-          type: "checkbox",
-        },
-        {
-          question: "Describe prescription handling process",
-          type: "text_input",
-        },
-        {
-          question: "Upload photo of medicine storage area",
-          type: "photo_upload",
-        },
-      ],
-    },
-    checklist_yaml: `category_name: Pharmacy
-checklist:
-  - question: "Medicine storage rating (1-10)?"
-    type: rating
-    min: 1
-    max: 10
-  - question: "Is pharmacist license displayed?"
-    type: checkbox
-  - question: "Describe prescription handling process"
-    type: text_input
-  - question: "Upload photo of medicine storage area"
-    type: photo_upload`,
-    created_at: "2024-01-18T13:00:00Z",
-  },
-]
-
-// Mock Businesses
-export const mockBusinesses: Business[] = [
-  {
-    id: "biz-spice-garden",
-    business_name: "Spice Garden Restaurant",
-    address: "123 MG Road, Near City Mall",
-    city: "Mumbai",
-    pin_code: "400001",
-    category_id: "cat-restaurant",
-    created_at: "2024-01-20T09:00:00Z",
-  },
-  {
-    id: "biz-city-clinic",
-    business_name: "City Medical Clinic",
-    address: "456 Park Street, Medical Complex",
-    city: "Mumbai",
-    pin_code: "400002",
-    category_id: "cat-medical",
-    created_at: "2024-01-21T10:00:00Z",
-  },
-  {
-    id: "biz-fashion-hub",
-    business_name: "Fashion Hub Store",
-    address: "789 Commercial Street, Shopping District",
-    city: "Bangalore",
-    pin_code: "560001",
-    category_id: "cat-retail",
-    created_at: "2024-01-22T11:00:00Z",
-  },
-  {
-    id: "biz-wellness-pharmacy",
-    business_name: "Wellness Pharmacy",
-    address: "321 Health Avenue, Medical Zone",
-    city: "Delhi",
-    pin_code: "110001",
-    category_id: "cat-pharmacy",
-    created_at: "2024-01-23T12:00:00Z",
-  },
-  {
-    id: "biz-taste-buds",
-    business_name: "Taste Buds Cafe",
-    address: "654 Food Court, Central Plaza",
-    city: "Chennai",
-    pin_code: "600001",
-    category_id: "cat-restaurant",
-    created_at: "2024-01-24T13:00:00Z",
-  },
-  {
-    id: "biz-family-clinic",
-    business_name: "Family Care Clinic",
-    address: "987 Residential Area, Sector 5",
-    city: "Pune",
-    pin_code: "411001",
-    category_id: "cat-medical",
-    created_at: "2024-01-25T14:00:00Z",
-  },
-]
-
-// Mock Supplier Tasks
-export const mockSupplierTasks: SupplierTask[] = [
-  {
-    id: "sup-task-1",
-    supplier_id: "demo-supplier-id",
-    business_id: "biz-spice-garden",
-    status: "package_delivered",
-    created_at: "2024-01-20T09:30:00Z",
-    updated_at: "2024-01-22T15:00:00Z",
-  },
-  {
-    id: "sup-task-2",
-    supplier_id: "demo-supplier-id",
-    business_id: "biz-city-clinic",
-    status: "package_sent",
-    created_at: "2024-01-21T10:30:00Z",
-    updated_at: "2024-01-23T11:00:00Z",
-  },
-  {
-    id: "sup-task-3",
-    supplier_id: "demo-supplier-id",
-    business_id: "biz-fashion-hub",
-    status: "in_progress",
-    created_at: "2024-01-22T11:30:00Z",
-    updated_at: "2024-01-22T16:00:00Z",
-  },
-  {
-    id: "sup-task-4",
-    supplier_id: "demo-supplier-id",
-    business_id: "biz-wellness-pharmacy",
-    status: "to_do",
-    created_at: "2024-01-23T12:30:00Z",
-    updated_at: "2024-01-23T12:30:00Z",
-  },
-]
-
-// Mock Auditor Tasks
-export const mockAuditorTasks: AuditorTask[] = [
-  {
-    id: "aud-task-1",
-    auditor_id: "demo-auditor-id",
-    business_id: "biz-spice-garden",
-    status: "completed",
-    payout_amount: 20000,
-    created_at: "2024-01-20T10:00:00Z",
-    updated_at: "2024-01-24T16:00:00Z",
-  },
-  {
-    id: "aud-task-2",
-    auditor_id: "demo-auditor-id",
-    business_id: "biz-city-clinic",
-    status: "in_progress",
-    payout_amount: 30000,
-    created_at: "2024-01-21T11:00:00Z",
-    updated_at: "2024-01-25T10:00:00Z",
-  },
-  {
-    id: "aud-task-3",
-    auditor_id: "demo-auditor-id",
-    business_id: "biz-fashion-hub",
-    status: "not_started",
+    id: "cat-3",
+    name: "Retail Store",
     payout_amount: 15000,
-    created_at: "2024-01-22T12:00:00Z",
-    updated_at: "2024-01-22T12:00:00Z",
+    checklist: {
+      questions: [
+        {
+          id: "store_organization",
+          question: "Store organization and cleanliness (1-10)?",
+          type: "rating",
+          min: 1,
+          max: 10,
+          required: true,
+        },
+        {
+          id: "product_quality",
+          question: "Overall product quality assessment?",
+          type: "text_input",
+          required: true,
+        },
+        {
+          id: "customer_service",
+          question: "Staff provides good customer service?",
+          type: "checkbox",
+          required: true,
+        },
+        {
+          id: "store_photo",
+          question: "Upload photo of store interior.",
+          type: "photo_upload",
+          required: true,
+        },
+      ],
+    },
+    created_at: "2024-01-03T00:00:00Z",
+  },
+]
+
+export const demoBusinesses = [
+  {
+    id: "biz-1",
+    name: "Spice Garden Restaurant",
+    category_id: "cat-1",
+    address: "123 Food Street, Bandra West",
+    city: "Mumbai",
+    pin_code: "400050",
+    phone_number: "+91 9876543220",
+    email: "info@spicegarden.com",
+    created_at: "2024-01-10T00:00:00Z",
+    business_categories: { name: "Restaurant" },
   },
   {
-    id: "aud-task-4",
-    auditor_id: "demo-auditor-id",
-    business_id: "biz-taste-buds",
-    status: "not_started",
+    id: "biz-2",
+    name: "HealthCare Plus Clinic",
+    category_id: "cat-2",
+    address: "456 Medical Lane, Andheri East",
+    city: "Mumbai",
+    pin_code: "400069",
+    phone_number: "+91 9876543221",
+    email: "contact@healthcareplus.com",
+    created_at: "2024-01-11T00:00:00Z",
+    business_categories: { name: "Medical Clinic" },
+  },
+  {
+    id: "biz-3",
+    name: "Fashion Hub Store",
+    category_id: "cat-3",
+    address: "789 Shopping Complex, Powai",
+    city: "Mumbai",
+    pin_code: "400076",
+    phone_number: "+91 9876543222",
+    email: "sales@fashionhub.com",
+    created_at: "2024-01-12T00:00:00Z",
+    business_categories: { name: "Retail Store" },
+  },
+  {
+    id: "biz-4",
+    name: "Cafe Delight",
+    category_id: "cat-1",
+    address: "321 Coffee Street, Juhu",
+    city: "Mumbai",
+    pin_code: "400049",
+    phone_number: "+91 9876543223",
+    email: "hello@cafedelight.com",
+    created_at: "2024-01-13T00:00:00Z",
+    business_categories: { name: "Restaurant" },
+  },
+  {
+    id: "biz-5",
+    name: "City Medical Center",
+    category_id: "cat-2",
+    address: "654 Health Avenue, Malad",
+    city: "Mumbai",
+    pin_code: "400064",
+    phone_number: "+91 9876543224",
+    email: "info@citymedical.com",
+    created_at: "2024-01-14T00:00:00Z",
+    business_categories: { name: "Medical Clinic" },
+  },
+  {
+    id: "biz-6",
+    name: "Tech Gadgets Store",
+    category_id: "cat-3",
+    address: "987 Electronics Market, Goregaon",
+    city: "Mumbai",
+    pin_code: "400062",
+    phone_number: "+91 9876543225",
+    email: "support@techgadgets.com",
+    created_at: "2024-01-15T00:00:00Z",
+    business_categories: { name: "Retail Store" },
+  },
+]
+
+export const demoSupplierTasks = [
+  {
+    id: "st-1",
+    supplier_id: "supplier-1",
+    business_id: "biz-1",
+    status: "package_delivered" as const,
+    created_at: "2024-01-10T00:00:00Z",
+    businesses: demoBusinesses[0],
+    profiles: { full_name: "Supply Chain Co" },
+  },
+  {
+    id: "st-2",
+    supplier_id: "supplier-1",
+    business_id: "biz-2",
+    status: "package_sent" as const,
+    created_at: "2024-01-11T00:00:00Z",
+    businesses: demoBusinesses[1],
+    profiles: { full_name: "Supply Chain Co" },
+  },
+  {
+    id: "st-3",
+    supplier_id: "supplier-1",
+    business_id: "biz-3",
+    status: "in_progress" as const,
+    created_at: "2024-01-12T00:00:00Z",
+    businesses: demoBusinesses[2],
+    profiles: { full_name: "Supply Chain Co" },
+  },
+  {
+    id: "st-4",
+    supplier_id: "supplier-1",
+    business_id: "biz-4",
+    status: "todo" as const,
+    created_at: "2024-01-13T00:00:00Z",
+    businesses: demoBusinesses[3],
+    profiles: { full_name: "Supply Chain Co" },
+  },
+]
+
+export const demoAuditorTasks = [
+  {
+    id: "at-1",
+    auditor_id: "auditor-1",
+    business_id: "biz-1",
+    category_id: "cat-1",
+    status: "completed" as const,
     payout_amount: 20000,
-    created_at: "2024-01-24T14:00:00Z",
-    updated_at: "2024-01-24T14:00:00Z",
+    created_at: "2024-01-10T00:00:00Z",
+    businesses: demoBusinesses[0],
+    business_categories: { name: "Restaurant" },
+    profiles: { full_name: "John Auditor" },
   },
-]
-
-// Mock Audit Reports
-export const mockAuditReports: AuditReport[] = [
   {
-    id: "report-1",
-    auditor_task_id: "aud-task-1",
-    auditor_id: "demo-auditor-id",
-    business_id: "biz-spice-garden",
-    responses: [
-      {
-        question: "Cleanliness rating (1-10)?",
-        type: "rating",
-        response: [8],
-      },
-      {
-        question: "Quality of ingredients used?",
-        type: "text_input",
-        response:
-          "Fresh ingredients observed, proper storage maintained. Vegetables looked fresh and meat was properly refrigerated.",
-      },
-      {
-        question: "Are health and safety certificates visible?",
-        type: "checkbox",
-        response: true,
-      },
-      {
-        question: "Upload photo of kitchen cleanliness.",
-        type: "photo_upload",
-        response: "Photo uploaded (demo mode)",
-      },
-    ],
-    photos: [],
-    submitted_at: "2024-01-24T16:00:00Z",
+    id: "at-2",
+    auditor_id: "auditor-1",
+    business_id: "biz-2",
+    category_id: "cat-2",
+    status: "in_progress" as const,
+    payout_amount: 25000,
+    created_at: "2024-01-11T00:00:00Z",
+    businesses: demoBusinesses[1],
+    business_categories: { name: "Medical Clinic" },
+    profiles: { full_name: "John Auditor" },
+  },
+  {
+    id: "at-3",
+    auditor_id: "auditor-1",
+    business_id: "biz-3",
+    category_id: "cat-3",
+    status: "not_started" as const,
+    payout_amount: 15000,
+    created_at: "2024-01-12T00:00:00Z",
+    businesses: demoBusinesses[2],
+    business_categories: { name: "Retail Store" },
+    profiles: { full_name: "John Auditor" },
   },
 ]
 
-// Helper functions to get mock data with relationships
-export const getMockBusinessCategories = (): BusinessCategory[] => {
-  return mockBusinessCategories
+export const demoAuditReports = [
+  {
+    id: "ar-1",
+    auditor_task_id: "at-1",
+    auditor_id: "auditor-1",
+    business_id: "biz-1",
+    responses: {
+      cleanliness_rating: [8],
+      ingredient_quality: "Fresh ingredients, well-maintained storage",
+      health_certificates: true,
+      kitchen_photo: "/placeholder.svg?height=200&width=300&text=Kitchen+Photo",
+    },
+    photos: ["/placeholder.svg?height=200&width=300&text=Kitchen+Photo"],
+    submitted_at: "2024-01-10T12:00:00Z",
+    businesses: { name: "Spice Garden Restaurant" },
+    profiles: { full_name: "John Auditor" },
+  },
+]
+
+// Helper functions for demo data management
+export const getDemoCategories = () => {
+  return [...demoCategories]
 }
 
-export const getMockBusinesses = (): Business[] => {
-  return mockBusinesses.map((business) => ({
-    ...business,
-    business_categories: mockBusinessCategories.find((cat) => cat.id === business.category_id),
-  }))
-}
-
-export const getMockSupplierTasks = (supplierId: string): SupplierTask[] => {
-  return mockSupplierTasks
-    .filter((task) => task.supplier_id === supplierId)
-    .map((task) => ({
-      ...task,
-      businesses: mockBusinesses.find((biz) => biz.id === task.business_id),
-    }))
-}
-
-export const getMockAuditorTasks = (auditorId: string): AuditorTask[] => {
-  return mockAuditorTasks
-    .filter((task) => task.auditor_id === auditorId)
-    .map((task) => {
-      const business = mockBusinesses.find((biz) => biz.id === task.business_id)
-      const category = mockBusinessCategories.find((cat) => cat.id === business?.category_id)
-      return {
-        ...task,
-        businesses: business
-          ? {
-              ...business,
-              business_categories: {
-                category_name: category?.category_name || "",
-                checklist: category?.checklist,
-              },
-            }
-          : undefined,
-      }
-    })
-}
-
-export const getMockAuditReports = (): AuditReport[] => {
-  return mockAuditReports.map((report) => {
-    const business = mockBusinesses.find((biz) => biz.id === report.business_id)
-    const category = mockBusinessCategories.find((cat) => cat.id === business?.category_id)
-    return {
-      ...report,
-      users: {
-        full_name: "Mike Auditor",
-      },
-      businesses: business
-        ? {
-            ...business,
-            business_categories: {
-              category_name: category?.category_name || "",
-            },
-          }
-        : undefined,
-    }
-  })
-}
-
-export const getMockAuditorTask = (taskId: string): AuditorTask | null => {
-  const task = mockAuditorTasks.find((t) => t.id === taskId)
-  if (!task) return null
-
-  const business = mockBusinesses.find((biz) => biz.id === task.business_id)
-  const category = mockBusinessCategories.find((cat) => cat.id === business?.category_id)
-
-  return {
-    ...task,
-    businesses: business
-      ? {
-          ...business,
-          business_categories: {
-            category_name: category?.category_name || "",
-            checklist: category?.checklist,
-          },
-        }
-      : undefined,
-  }
-}
-
-// Update task status functions
-export const updateMockSupplierTaskStatus = (taskId: string, status: string): boolean => {
-  const taskIndex = mockSupplierTasks.findIndex((task) => task.id === taskId)
-  if (taskIndex !== -1) {
-    mockSupplierTasks[taskIndex].status = status as any
-    mockSupplierTasks[taskIndex].updated_at = new Date().toISOString()
-    return true
-  }
-  return false
-}
-
-export const updateMockAuditorTaskStatus = (taskId: string, status: string): boolean => {
-  const taskIndex = mockAuditorTasks.findIndex((task) => task.id === taskId)
-  if (taskIndex !== -1) {
-    mockAuditorTasks[taskIndex].status = status as any
-    mockAuditorTasks[taskIndex].updated_at = new Date().toISOString()
-    return true
-  }
-  return false
-}
-
-export const addMockAuditReport = (report: Omit<AuditReport, "id" | "submitted_at">): boolean => {
-  const newReport: AuditReport = {
-    ...report,
-    id: `report-${Date.now()}`,
-    submitted_at: new Date().toISOString(),
-  }
-  mockAuditReports.push(newReport)
-
-  // Update corresponding auditor task status
-  updateMockAuditorTaskStatus(report.auditor_task_id, "completed")
-
-  return true
-}
-
-export const addMockBusinessCategory = (category: Omit<BusinessCategory, "id" | "created_at">): boolean => {
-  const newCategory: BusinessCategory = {
-    ...category,
+export const createDemoCategory = (categoryData: any) => {
+  const newCategory = {
     id: `cat-${Date.now()}`,
+    ...categoryData,
     created_at: new Date().toISOString(),
   }
-  mockBusinessCategories.push(newCategory)
-  return true
+  demoCategories.push(newCategory)
+  return newCategory
 }
 
-export const addMockBusiness = (business: Omit<Business, "id" | "created_at">): boolean => {
-  const newBusiness: Business = {
-    ...business,
+export const createDemoBusiness = (businessData: any) => {
+  const categoryName = demoCategories.find((cat) => cat.id === businessData.category_id)?.name || "Unknown"
+
+  const newBusiness = {
     id: `biz-${Date.now()}`,
+    ...businessData,
     created_at: new Date().toISOString(),
-  }
-  mockBusinesses.push(newBusiness)
-
-  // Auto-create supplier and auditor tasks
-  const newSupplierTask: SupplierTask = {
-    id: `sup-task-${Date.now()}`,
-    supplier_id: "demo-supplier-id",
-    business_id: newBusiness.id,
-    status: "to_do",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    business_categories: { name: categoryName },
   }
 
-  const category = mockBusinessCategories.find((cat) => cat.id === business.category_id)
-  const newAuditorTask: AuditorTask = {
-    id: `aud-task-${Date.now()}`,
-    auditor_id: "demo-auditor-id",
-    business_id: newBusiness.id,
-    status: "not_started",
-    payout_amount: category?.payout_amount || 15000,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
-
-  mockSupplierTasks.push(newSupplierTask)
-  mockAuditorTasks.push(newAuditorTask)
-
-  return true
+  demoBusinesses.push(newBusiness)
+  return newBusiness
 }
 
+export const getDemoBusinesses = () => {
+  return [...demoBusinesses]
+}
+
+export const getDemoUsers = () => {
+  return [...demoUsers]
+}
+
+export const getDemoSupplierTasks = () => {
+  return [...demoSupplierTasks]
+}
+
+export const getDemoAuditorTasks = () => {
+  return [...demoAuditorTasks]
+}
+
+export const getDemoAuditReports = () => {
+  return [...demoAuditReports]
+}
+
+// Demo authentication
+export const demoAuth = {
+  currentUser: null as (typeof demoUsers)[0] | null,
+
+  signIn: (email: string, password: string) => {
+    // Simple demo authentication
+    const user = demoUsers.find((u) => u.email === email)
+    if (user && password === "demo123") {
+      demoAuth.currentUser = user
+      return { success: true, user }
+    }
+    return { success: false, error: "Invalid credentials. Use demo123 as password." }
+  },
+
+  signUp: (userData: any) => {
+    // In demo mode, just create a new user
+    const newUser = {
+      id: `user-${Date.now()}`,
+      ...userData,
+    }
+    demoUsers.push(newUser)
+    return { success: true, user: newUser }
+  },
+
+  signOut: () => {
+    demoAuth.currentUser = null
+  },
+
+  getCurrentUser: () => demoAuth.currentUser,
+}
