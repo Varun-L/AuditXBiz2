@@ -8,65 +8,83 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CheckCircle, UserCheck } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Users, CheckCircle, Upload, Loader2 } from "lucide-react"
+import { LocationPicker } from "@/components/location-picker"
+import { registerAuditor } from "@/lib/api/users"
 
-export default function AuditorOnboardingPage() {
-  const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone_number: "",
-    physical_address: "",
-    experience_years: "",
-    specializations: "",
-    upi_handle: "",
-    bank_account_number: "",
-    bank_name: "",
-    ifsc_code: "",
-    aadhaar_number: "",
-    pan_number: "",
-  })
+export default function AuditorOnboarding() {
+  const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState("")
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    email: "",
+    address: "",
+    latitude: "",
+    longitude: "",
+    aadhaarNumber: "",
+    drivingLicense: "",
+    upiId: "",
+    bankAccount: "",
+    experience: "",
+    agreeToTerms: false,
+  })
+
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError("")
 
-    try {
-      const { error } = await supabase.from("auditor_onboarding_requests").insert({
-        ...formData,
-        role: "auditor",
-        status: "pending",
-        submitted_at: new Date().toISOString(),
-      })
-
-      if (error) throw error
-
-      setSubmitted(true)
-    } catch (err: any) {
-      setError(err.message || "Failed to submit auditor application")
+    if (!formData.agreeToTerms) {
+      alert("Please agree to the terms and conditions")
+      return
     }
 
-    setLoading(false)
+    setLoading(true)
+
+    try {
+      // Register auditor in database
+      const auditor = await registerAuditor(formData)
+      console.log("Auditor registered successfully:", auditor)
+      setStep(3) // Success step
+    } catch (error) {
+      console.error("Registration failed:", error)
+      alert("Registration failed. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (submitted) {
+  if (step === 3) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
-          <CardContent className="text-center py-8">
-            <CheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted!</h2>
-            <p className="text-gray-600 mb-4">
-              Thank you for applying to become an AuditX-Biz auditor. Your application has been submitted successfully.
-            </p>
-            <p className="text-sm text-gray-500">
-              Our team will review your qualifications and contact you within 3-5 business days.
-            </p>
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="h-8 w-8 text-green-600" />
+            </div>
+            <CardTitle className="text-2xl text-green-800">Application Submitted!</CardTitle>
+            <CardDescription>
+              Your auditor application has been submitted successfully. We'll review your documents and get back to you
+              within 48 hours.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-blue-800 mb-2">Next Steps:</h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Document verification (24-48 hours)</li>
+                <li>• Background check and approval</li>
+                <li>• Training session scheduling</li>
+                <li>• Account activation and first assignments</li>
+              </ul>
+            </div>
+            <Button className="w-full" onClick={() => (window.location.href = "/")}>
+              Return to Home
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -74,175 +92,251 @@ export default function AuditorOnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
       <div className="max-w-2xl mx-auto px-4">
+        {/* Header */}
         <div className="text-center mb-8">
-          <UserCheck className="mx-auto h-12 w-12 text-blue-600 mb-4" />
+          <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900">Become an Auditor</h1>
-          <p className="text-gray-600 mt-2">Join our network of professional auditors</p>
+          <p className="text-gray-600 mt-2">
+            Join our network of certified auditors and earn money by conducting business audits
+          </p>
+        </div>
+
+        {/* Progress Indicator */}
+        <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center space-x-4">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                step >= 1 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"
+              }`}
+            >
+              1
+            </div>
+            <div className={`w-16 h-1 ${step >= 2 ? "bg-blue-600" : "bg-gray-200"}`} />
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                step >= 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"
+              }`}
+            >
+              2
+            </div>
+          </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Auditor Application</CardTitle>
+            <CardTitle>{step === 1 ? "Personal Information" : "Documents & Verification"}</CardTitle>
             <CardDescription>
-              Please provide your professional details. We'll review your application and get back to you soon.
+              {step === 1
+                ? "Tell us about yourself and your contact details"
+                : "Provide verification documents and payment information"}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {step === 1 && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName">Full Name *</Label>
+                      <Input
+                        id="fullName"
+                        placeholder="Enter your full name"
+                        value={formData.fullName}
+                        onChange={(e) => handleInputChange("fullName", e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number *</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+91-9999999999"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address *</Label>
+                    <Textarea
+                      id="address"
+                      placeholder="Enter your complete address"
+                      value={formData.address}
+                      onChange={(e) => handleInputChange("address", e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <LocationPicker
+                    onLocationSelect={(lat, lng, address) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        latitude: lat.toString(),
+                        longitude: lng.toString(),
+                        address: address || prev.address,
+                      }))
+                    }}
+                    initialLat={formData.latitude ? Number.parseFloat(formData.latitude) : undefined}
+                    initialLng={formData.longitude ? Number.parseFloat(formData.longitude) : undefined}
+                    initialAddress={formData.address}
+                  />
+
+                  <div className="space-y-2">
+                    <Label htmlFor="experience">Relevant Experience</Label>
+                    <Textarea
+                      id="experience"
+                      placeholder="Describe any relevant experience in auditing, quality control, or business evaluation..."
+                      value={formData.experience}
+                      onChange={(e) => handleInputChange("experience", e.target.value)}
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      disabled={
+                        !formData.fullName ||
+                        !formData.phone ||
+                        !formData.email ||
+                        !formData.address ||
+                        !formData.latitude ||
+                        !formData.longitude
+                      }
+                    >
+                      Next Step
+                    </Button>
+                  </div>
+                </>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="full_name">Full Name *</Label>
-                  <Input
-                    id="full_name"
-                    value={formData.full_name}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, full_name: e.target.value }))}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone_number">Phone Number *</Label>
-                  <Input
-                    id="phone_number"
-                    value={formData.phone_number}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, phone_number: e.target.value }))}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="experience_years">Years of Experience *</Label>
-                  <Input
-                    id="experience_years"
-                    type="number"
-                    value={formData.experience_years}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, experience_years: e.target.value }))}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="physical_address">Address *</Label>
-                <Textarea
-                  id="physical_address"
-                  value={formData.physical_address}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, physical_address: e.target.value }))}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="specializations">Specializations/Expertise</Label>
-                <Textarea
-                  id="specializations"
-                  value={formData.specializations}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, specializations: e.target.value }))}
-                  placeholder="e.g., Restaurant auditing, Medical facility compliance, Retail operations..."
-                />
-              </div>
-
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-medium mb-4">Financial Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {step === 2 && (
+                <>
                   <div className="space-y-2">
-                    <Label htmlFor="upi_handle">UPI Handle *</Label>
+                    <Label htmlFor="aadhaarNumber">Aadhaar Number *</Label>
                     <Input
-                      id="upi_handle"
-                      value={formData.upi_handle}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, upi_handle: e.target.value }))}
-                      placeholder="yourname@upi"
+                      id="aadhaarNumber"
+                      placeholder="1234 5678 9012"
+                      value={formData.aadhaarNumber}
+                      onChange={(e) => handleInputChange("aadhaarNumber", e.target.value)}
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="bank_name">Bank Name *</Label>
+                    <Label htmlFor="drivingLicense">Driving License Number</Label>
                     <Input
-                      id="bank_name"
-                      value={formData.bank_name}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, bank_name: e.target.value }))}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="bank_account_number">Account Number *</Label>
-                    <Input
-                      id="bank_account_number"
-                      value={formData.bank_account_number}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, bank_account_number: e.target.value }))}
-                      required
+                      id="drivingLicense"
+                      placeholder="Enter driving license number"
+                      value={formData.drivingLicense}
+                      onChange={(e) => handleInputChange("drivingLicense", e.target.value)}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="ifsc_code">IFSC Code *</Label>
-                    <Input
-                      id="ifsc_code"
-                      value={formData.ifsc_code}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, ifsc_code: e.target.value }))}
-                      required
-                    />
+                    <Label>Document Uploads</Label>
+                    <div className="space-y-3">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                        <Button variant="outline" className="w-full">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Aadhaar Card
+                        </Button>
+                        <p className="text-xs text-gray-500 mt-2 text-center">
+                          Upload clear photo of your Aadhaar card
+                        </p>
+                      </div>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                        <Button variant="outline" className="w-full">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Driving License
+                        </Button>
+                        <p className="text-xs text-gray-500 mt-2 text-center">
+                          Upload clear photo of your driving license (optional)
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-medium mb-4">Identity Verification</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="aadhaar_number">Aadhaar Number *</Label>
-                    <Input
-                      id="aadhaar_number"
-                      value={formData.aadhaar_number}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, aadhaar_number: e.target.value }))}
-                      required
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="upiId">UPI ID *</Label>
+                      <Input
+                        id="upiId"
+                        placeholder="yourname@paytm"
+                        value={formData.upiId}
+                        onChange={(e) => handleInputChange("upiId", e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="bankAccount">Bank Account Number</Label>
+                      <Input
+                        id="bankAccount"
+                        placeholder="Enter bank account number"
+                        value={formData.bankAccount}
+                        onChange={(e) => handleInputChange("bankAccount", e.target.value)}
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="pan_number">PAN Number *</Label>
-                    <Input
-                      id="pan_number"
-                      value={formData.pan_number}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, pan_number: e.target.value }))}
-                      required
-                    />
+                  <div className="bg-yellow-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-yellow-800 mb-2">Earning Information</h4>
+                    <ul className="text-sm text-yellow-700 space-y-1">
+                      <li>• Restaurant audits: ₹500 per audit</li>
+                      <li>• Retail store audits: ₹400 per audit</li>
+                      <li>• Service center audits: ₹450 per audit</li>
+                      <li>• Payments processed within 24 hours of audit completion</li>
+                    </ul>
                   </div>
-                </div>
-              </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Submitting..." : "Submit Application"}
-              </Button>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="terms"
+                      checked={formData.agreeToTerms}
+                      onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
+                    />
+                    <Label htmlFor="terms" className="text-sm">
+                      I agree to the terms and conditions, privacy policy, and auditor code of conduct
+                    </Label>
+                  </div>
 
-              <p className="text-xs text-gray-500 text-center">
-                By submitting this form, you agree to our terms of service and privacy policy.
-              </p>
+                  <div className="flex justify-between">
+                    <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                      Previous
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={!formData.agreeToTerms || !formData.aadhaarNumber || !formData.upiId || loading}
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        "Submit Application"
+                      )}
+                    </Button>
+                  </div>
+                </>
+              )}
             </form>
           </CardContent>
         </Card>
